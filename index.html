@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mentat Logic — deterministic analysis for scraped social data</title>
+<meta name="description" content="Processors, not scrapers. Three Apify actors that analyze Facebook data you already collected: identity resolution (free), fair page comparison and comment-authenticity auditing at $0.66 per 1,000 units. Never guesses, states its limits, prints measured costs.">
+<link rel="icon" type="image/png" href="mentat_logic_avatar_512.png">
+<meta property="og:title" content="Mentat Logic — deterministic analysis for scraped social data">
+<meta property="og:description" content="Processors, not scrapers. Identity resolution, fair page comparison, comment-authenticity audits. Never guesses.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://mentat-logic.github.io/mentat-assets/">
+<meta property="og:image" content="https://mentat-logic.github.io/mentat-assets/report_top.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "name": "Mentat Logic",
+      "url": "https://mentat-logic.github.io/mentat-assets/",
+      "logo": "https://mentat-logic.github.io/mentat-assets/mentat_logic_avatar_512.png",
+      "description": "Deterministic analysis actors for scraped social data on the Apify Store. Processors, not scrapers.",
+      "sameAs": [
+        "https://apify.com/mentat-logic",
+        "https://dev.to/mentat_logic"
+      ]
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "Facebook Page Identity Resolver & URL Deduplicator",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Web",
+      "url": "https://apify.com/mentat-logic/mentat-resolver",
+      "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+      "description": "Unifies Facebook page URL variants into one canonical identity per page and removes duplicate posts from any posts-scraper export. Never merges on display name alone."
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "Mentat Page Compare",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "url": "https://apify.com/mentat-logic/mentat-page-compare",
+      "offers": {"@type": "Offer", "price": "0.66", "priceCurrency": "USD", "description": "$0.66 per 1,000 unique posts; first 250 posts of every run free; compute included"},
+      "description": "Fair Facebook page-vs-page comparison from any posts export: duplicates removed before counting, honest medians, coverage stated, client-ready HTML report."
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "Facebook Comment Authenticity Audit",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "url": "https://apify.com/mentat-logic/mentat-authenticity-audit",
+      "offers": {"@type": "Offer", "price": "0.66", "priceCurrency": "USD", "description": "$0.66 per 1,000 unique comments; first 1,500 comments of every run free; compute included"},
+      "description": "Per-account coordination signals in comment exports — timing bursts, duplicate talking points, reply chains — with evidence attached. Never issues 'bot' verdicts; INSUFFICIENT SIGNAL is a first-class answer."
+    }
+  ]
+}
+</script>
+<style>
+  :root{
+    --void:#0D0E12; --console:#16181D; --row:#1E2127; --carbon:#2A2D35;
+    --carbon-l:#3A3E47; --amber:#C2A34F; --blue:#4A6B8C; --pos:#427A5B;
+    --warn:#B89340; --neg:#9E3B3B; --text:#E4E7EB; --body:#B8BEC7; --muted:#8B949E;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{background:var(--void);}
+  body{
+    background:var(--void); color:var(--text);
+    font-family:'IBM Plex Sans',sans-serif; font-size:13px; line-height:1.5;
+  }
+  a{color:var(--blue); text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  a:focus-visible, .btn:focus-visible{outline:1px solid var(--amber); outline-offset:2px;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  /* ---- top bar ---- */
+  .topbar{
+    height:56px; display:flex; align-items:center; justify-content:space-between;
+    padding:0 24px; border-bottom:1px solid var(--carbon);
+  }
+  .brand{display:flex; align-items:center; gap:12px;}
+  .brand img{height:34px; width:34px; display:block;}
+  .wordmark{font-size:17px; font-weight:700; letter-spacing:2px;}
+  .tagline{
+    font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:2px;
+    color:var(--muted); text-transform:uppercase;
+  }
+  .btn{
+    font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:1px;
+    text-transform:uppercase; color:var(--amber); border:1px solid var(--amber);
+    padding:7px 14px; border-radius:2px; background:transparent; white-space:nowrap;
+  }
+  .btn:hover{background:rgba(194,163,79,0.08); text-decoration:none;}
+  /* ---- project header ---- */
+  .prohead{padding:14px 24px; border-bottom:1px solid var(--carbon);}
+  .prohead h1{font-size:20px; font-weight:600; margin-bottom:4px;}
+  .prohead p{color:var(--body); font-size:13px; max-width:760px;}
+  .microstats{
+    font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1.5px;
+    text-transform:uppercase; color:var(--muted); margin-top:10px;
+  }
+  .microstats b{color:var(--amber); font-weight:600;}
+  /* ---- layout ---- */
+  .app{padding:20px 24px; display:grid; gap:16px;}
+  .grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media (max-width:900px){ .grid3,.grid2{grid-template-columns:1fr;} }
+  /* ---- panels ---- */
+  .panel{background:var(--console); border:1px solid var(--carbon); border-radius:2px;}
+  .panel-h{
+    padding:12px 16px; border-bottom:1px solid var(--carbon);
+    font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1.5px;
+    text-transform:uppercase; color:var(--muted);
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .panel-b{padding:16px;}
+  .tool-name{font-size:15px; font-weight:600; margin-bottom:6px;}
+  .tool-desc{color:var(--body); font-size:12.5px; margin-bottom:12px;}
+  .price{
+    font-family:'JetBrains Mono',monospace; font-size:20px; font-weight:600;
+    color:var(--amber); margin-bottom:2px;
+  }
+  .price.free{color:var(--pos);}
+  .allow{
+    font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1px;
+    text-transform:uppercase; color:var(--muted); margin-bottom:12px;
+  }
+  .rule-line{
+    font-size:12px; color:var(--body); border-top:1px solid var(--row);
+    padding-top:10px; margin-bottom:12px;
+  }
+  .rule-line em{color:var(--text); font-style:normal; font-weight:500;}
+  .open{
+    font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:1px;
+    text-transform:uppercase;
+  }
+  /* ---- list rows ---- */
+  .rows{list-style:none;}
+  .rows li{
+    display:flex; align-items:baseline; gap:12px;
+    padding:10px 0; border-bottom:1px solid var(--row);
+  }
+  .rows li:last-child{border-bottom:0; padding-bottom:0;}
+  .rows li:first-child{padding-top:0;}
+  .tag{
+    font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1px;
+    color:var(--muted); text-transform:uppercase; flex:0 0 118px;
+  }
+  .rows .what{color:var(--body); font-size:12px;}
+  /* ---- house rules ---- */
+  .ethic{display:grid; grid-template-columns:repeat(4,1fr);}
+  @media (max-width:900px){ .ethic{grid-template-columns:1fr 1fr;} }
+  .ethic div{
+    padding:14px 16px; border-right:1px solid var(--carbon);
+    font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:1.2px;
+    text-transform:uppercase; color:var(--body);
+  }
+  .ethic div:last-child{border-right:0;}
+  .ethic b{display:block; color:var(--text); font-weight:600; margin-bottom:4px;}
+  /* ---- footer ---- */
+  .foot{
+    padding:14px 24px; border-top:1px solid var(--carbon);
+    font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1.5px;
+    text-transform:uppercase; color:var(--muted);
+    display:flex; flex-wrap:wrap; gap:8px 24px;
+  }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <img src="mentat_logic_avatar_512.png" alt="Mentat Logic glyph" onerror="this.style.display='none'">
+    <span class="wordmark">MENTAT&nbsp;LOGIC</span>
+    <span class="tagline">Signal extraction · data-analysis actors</span>
+  </div>
+  <a class="btn" href="https://apify.com/mentat-logic">Apify Store ↗</a>
+</header>
+<section class="prohead">
+  <h1>Deterministic analysis for scraped social data.</h1>
+  <p>Processors, not scrapers. These tools analyze the Facebook data you already collected — a dataset ID or pasted rows in, professional intelligence out. They never contact Facebook, and they never guess.</p>
+  <div class="microstats">3 tools · one price <b>$0.66 / 1,000 units</b> · free allowance on every run · demo free, no signup</div>
+</section>
+<main class="app">
+  <div class="grid3">
+    <section class="panel">
+      <div class="panel-h"><span>Identity</span><span>FREE</span></div>
+      <div class="panel-b">
+        <div class="tool-name">Page Identity Resolver &amp; URL Deduplicator</div>
+        <p class="tool-desc">Unifies every Facebook page-URL variant (m./www., profile.php?id=, /p/Name-ID/) into one canonical identity per page, and removes duplicate posts before you count anything.</p>
+        <div class="price free">FREE</div>
+        <div class="allow">No developer fee · your own compute only</div>
+        <p class="rule-line"><em>House rule:</em> two pages sharing a display name are reported as a hint with evidence — never merged. Unresolvable URLs come back as unresolved, with the reason.</p>
+        <a class="open" href="https://apify.com/mentat-logic/mentat-resolver">Open on Apify →</a>
+      </div>
+    </section>
+    <section class="panel">
+      <div class="panel-h"><span>Comparison</span><span>PAID</span></div>
+      <div class="panel-b">
+        <div class="tool-name">Mentat Page Compare</div>
+        <p class="tool-desc">Fair page-vs-page comparison from any posts export: duplicates removed before counting, honest medians, coverage stated, absent data shown as absent — plus a client-ready HTML report.</p>
+        <div class="price">$0.66 <span style="font-size:11px; color:var(--muted);">/ 1,000 unique posts</span></div>
+        <div class="allow">First 250 posts of every run free · compute included</div>
+        <p class="rule-line"><em>House rule:</em> deduplicated first, so you never pay twice for the same post. Short observation windows are flagged, not hidden.</p>
+        <a class="open" href="https://apify.com/mentat-logic/mentat-page-compare">Open on Apify →</a>
+      </div>
+    </section>
+    <section class="panel">
+      <div class="panel-h"><span>Authenticity</span><span>PAID</span></div>
+      <div class="panel-b">
+        <div class="tool-name">Comment Authenticity Audit</div>
+        <p class="tool-desc">Per-account coordination signals in your own comments export — timing bursts, duplicate talking points, reply chains — every signal with its evidence attached.</p>
+        <div class="price">$0.66 <span style="font-size:11px; color:var(--muted);">/ 1,000 unique comments</span></div>
+        <div class="allow">First 1,500 comments of every run free · compute included</div>
+        <p class="rule-line"><em>House rule:</em> it never says "bot". INSUFFICIENT SIGNAL is a first-class answer, and every report states what the audit cannot detect.</p>
+        <a class="open" href="https://apify.com/mentat-logic/mentat-authenticity-audit">Open on Apify →</a>
+      </div>
+    </section>
+  </div>
+  <section class="panel">
+    <div class="panel-h"><span>House rules — every tool, no exceptions</span></div>
+    <div class="ethic">
+      <div><b>Never guesses</b>ambiguity is reported with evidence, not merged away</div>
+      <div><b>Absent renders "—"</b>missing data is never shown as zero</div>
+      <div><b>Measured costs</b>run costs in the README are measured, not estimated</div>
+      <div><b>Limits stated</b>every README says what the tool deliberately does not do</div>
+    </div>
+  </section>
+  <div class="grid2">
+    <section class="panel">
+      <div class="panel-h"><span>Field notes</span><span>dev.to</span></div>
+      <div class="panel-b">
+        <ul class="rows">
+          <li><span class="tag">Identity</span><span class="what"><a href="https://dev.to/mentat_logic/the-facebook-url-zoo-every-page-link-format-and-how-to-canonicalize-them-4jfe">The Facebook URL Zoo — every page link format and how to canonicalize them</a></span></li>
+          <li><span class="tag">Comparison</span><span class="what"><a href="https://dev.to/mentat_logic/how-to-compare-facebook-pages-without-fooling-yourself-2l57">How to compare Facebook pages without fooling yourself</a></span></li>
+          <li><span class="tag">Authenticity</span><span class="what"><a href="https://dev.to/mentat_logic/reading-a-comment-section-like-an-analyst-coordination-signals-without-calling-anyone-a-bot-24b6">Reading a comment section like an analyst — coordination signals without calling anyone a bot</a></span></li>
+          <li><span class="tag">Spec</span><span class="what"><a href="https://github.com/mentat-logic/facebook-url-canonicalization">Facebook URL canonicalization — the rules as an open spec (CC BY 4.0)</a></span></li>
+        </ul>
+      </div>
+    </section>
+    <section class="panel">
+      <div class="panel-h"><span>Sample output</span><span>synthetic demo data</span></div>
+      <div class="panel-b">
+        <ul class="rows">
+          <li><span class="tag">Comparison</span><span class="what"><a href="demo_report.html">Page Compare — full HTML report generated by the free demo run</a></span></li>
+          <li><span class="tag">Identity</span><span class="what"><a href="resolver_output_preview.html">Resolver — output preview with the planted never-guess trap visible</a></span></li>
+        </ul>
+        <p style="color:var(--muted); font-size:11px; margin-top:12px;">Both generated from the empty-input demos — synthetic sample data with planted traps each tool must catch, or refuse.</p>
+      </div>
+    </section>
+  </div>
+</main>
+<footer class="foot">
+  <span>Mentat Logic</span>
+  <span>Actors run on <a href="https://apify.com/mentat-logic">Apify</a></span>
+  <span>Contact via each tool's Issues tab</span>
+  <span>Writing: <a href="https://dev.to/mentat_logic">dev.to/mentat_logic</a></span>
+</footer>
+</body>
+</html>
